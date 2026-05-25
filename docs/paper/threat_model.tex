@@ -1,0 +1,27 @@
+\section{Threat Model and Problem Formulation}
+\label{sec:threat_model}
+
+A \emph{panel} $\mathcal{P} = \{J_1, \ldots, J_K\}$ consists of $K$ judges (with $K$ odd) that evaluate a candidate text via majority vote: the text is accepted if at least $t = \lceil K/2 \rceil$ judges approve it. Under an attack $a$, each judge $J_j$ is compromised with marginal failure probability $\eta_j(a) = \Pr(X_j^a = 1)$, where $X_j^a \in \{0,1\}$ denotes the failure indicator. We write $\eta_{\max} = \max_j \eta_j$ for the vulnerability of the weakest judge. The \emph{panel attack success rate} is $\mathrm{ASR}(\mathcal{P}, a) = \Pr\!\bigl(\sum_{j=1}^K X_j^a \geq t\bigr)$.
+
+To quantify diversity, we define the \emph{effective independence} $K_{\mathrm{eff}}$ directly from pairwise mutual information among judges:
+\begin{equation}
+\label{eq:keff}
+K_{\mathrm{eff}} = \frac{1}{K}\sum_{i=1}^{K} \Bigl[1 + \sum_{j \neq i} \exp\!\bigl(-2 \cdot \mathrm{MI}(i,j)\bigr)\Bigr].
+\end{equation}
+This formulation computes effective independence from pairwise MI estimates without matrix decomposition, and is more stable for small panels ($K{=}3$). It ranges from $K_{\mathrm{eff}} \approx K$ when judges are nearly independent ($\mathrm{MI} \to 0$) to $K_{\mathrm{eff}} \approx 1$ when judges are highly correlated ($\mathrm{MI} \to \infty$). Motivated by information-theoretic redundancy reduction, one can informally expect joint vulnerability to scale as $\eta_{\mathrm{joint}} \sim K_{\mathrm{eff}} \cdot \eta_{\max}$: independent channels multiply failure probabilities, so fewer effective channels (lower $K_{\mathrm{eff}}$) should reduce panel vulnerability. This motivating relationship assumes non-adaptive faults and independent channels; it serves as intuition rather than a formal bound.
+
+\begin{definition}[Adaptive Adversary]
+\label{def:adversary}
+A \emph{full-knowledge (oracle) adaptive adversary} has complete knowledge of the panel composition $\mathcal{P}$, the per-judge vulnerability profiles $\{\eta_j(\cdot)\}_{j=1}^K$, and the inter-judge correlation structure. It selects the attack $a^* = \arg\max_{a \in \mathcal{A}} \mathrm{ASR}(\mathcal{P}, a)$ to maximize the panel ASR, yielding $\mathrm{ASR}^*(\mathcal{P}) = \sup_{a \in \mathcal{A}} \mathrm{ASR}(\mathcal{P}, a)$. This oracle model represents an \emph{upper bound} on adversarial capability; realistic adversaries with partial knowledge of panel composition would achieve lower ASR.
+\end{definition}
+
+This departs from Byzantine fault-tolerance (BFT) models~\cite{lamport1982byzantine,castro1999practical}, which tolerate arbitrary (including malicious) faults provided the number of faulty nodes satisfies $f < n/3$, but do not model adversaries that strategically target system structure. An adaptive adversary instead concentrates attack effort on the weakest link~\cite{schneier2000secrets}, rendering diversity-based defenses less effective than the independence-based intuition suggests.
+
+This suggests a \emph{reversal pattern}: under random faults, higher $K_{\mathrm{eff}}$ reduces joint failure probability, but under adaptive adversaries, diverse judges may present a wider attack surface; the adversary exploits judge-specific vulnerabilities rather than facing mutual protection.
+
+\begin{theorem}[Weakest-Link Monotonicity; formal statement and proof in Appendix~\ref{app:proof}]
+\label{thm:monotonicity}
+Replacing any panel member with a pointwise more vulnerable judge can only increase $\mathrm{ASR}^*(\mathcal{P})$, for any adversary including adaptive ones. The stochastic dominance condition holds for 58\% of judge pairs (61/105); non-dominance concentrates among within-tier pairs (72.1\% non-dominant, 31/43) versus cross-tier pairs (21.0\%, 13/62), reflecting that capability-similar judges lack uniform ordering.
+\end{theorem}
+
+The theorem predicts $\beta_2 > 0$ in Equation~\ref{eq:regression}. The independence-based intuition suggests $\beta_1 \leq 0$ under non-adaptive faults; the reversal pattern predicts positive $\beta_1$ for judge-specific attacks and negative for shared-bias attacks. The relative importance of $\eta_{\max}$ versus $K_{\mathrm{eff}}$ depends on $K$: at small $K$, one weak judge flips the majority; at larger $K$, the adversary must compromise multiple judges. We test these predictions across $K \in \{3,5,7\}$ (\S\ref{sec:experiments}).

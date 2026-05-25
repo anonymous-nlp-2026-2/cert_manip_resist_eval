@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+*.egg
+
+# Environment
+.env
+.env.*
+
+# IDE
+.DS_Store
+.vscode/
+.idea/
+
+# ML artifacts
+wandb/
+checkpoints/
+*.pt
+*.bin
+*.ckpt
+*.safetensors
+
+# All artifacts (internal results, reports, dream reports, backups)
+artifacts/
+
+# Logs
+*.log
+logs/
+
+# LaTeX build artifacts
+docs/paper/*.aux
+docs/paper/*.blg
+docs/paper/*.fdb_latexmk
+docs/paper/*.fls
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/*.synctex.gz
+
+# Internal project management
+AGENTS.md
+ROADMAP.md
+ROADMAP.lock
+decisions.yaml
+decisions.lock
+memory.md
+report.md
+registry.yaml
+registry.lock
+dream_registry.yaml
+dream_registry.yaml.bak
+dream_registry.lock
+experiment_plan.yaml
+literature_map.yaml
+paper_framing.md
+paper_provenance.yaml
+paper_provenance.lock
+mistakes.yaml
+mistakes.lock
+review_visual_check_state.json
+_last_visual_review.json
+study_status.lock
+task_context/
+distill_tmp/
+*.lock
+
+# Scoring venv and data
+scoring/.venv/
+scoring/data/
+scoring/results/
+docs/paper/main.pdf
