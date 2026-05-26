@@ -1,12 +1,12 @@
 # Certified Manipulation Resistance Evaluation
 
-Code and data for the paper: *"Diversity Hurts: Decomposing Multi-Judge Panel Robustness into Weakest-Link Susceptibility and Effective Independence"* (Anonymous, EMNLP 2026 Submission).
+Code and data for the paper: *"The Weakest Link Across Panel Sizes: Predictor Relevance Patterns in Multi-Judge LLM Evaluation under Adversarial Manipulation"* (Anonymous, EMNLP 2026 Submission).
 
 ## Overview
 
-This repository provides the full experimental pipeline for evaluating manipulation resistance of multi-judge LLM evaluation panels. We decompose panel attack success rate into:
+This repository provides the full experimental pipeline for evaluating how predictor relevance patterns shift across panel sizes in multi-judge LLM evaluation under adversarial manipulation. We regress panel attack success rate on:
 - **Weakest-link susceptibility** ($\eta_{\max}$): the vulnerability of the most manipulable judge
-- **Effective independence** ($K_{\mathrm{eff}}$): the number of truly independent judges in a panel
+- **Effective independence** ($K_{\mathrm{eff}}$): a pairwise-MI diversity index measuring truly independent judges
 
 ## Setup
 

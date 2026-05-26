@@ -5,26 +5,36 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{microtype}
+\usepackage{inconsolata}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{subcaption}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+\usepackage{float}
+\usepackage{placeins}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newtheorem{proposition}{Proposition}
 
-\title{The Shifting Predictor: Panel-Size-Dependent Vulnerability\\Patterns in LLM Judge Panels}
+\title{The Weakest Link Across Panel Sizes: Predictor Relevance\\Patterns in Multi-Judge LLM Evaluation under Adversarial Manipulation}
 
 \author{Anonymous}
+
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.7}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Multi-judge LLM evaluation panels are assumed to benefit from diversity, yet diversity's relationship to adversarial vulnerability is poorly understood. We decompose panel attack success into individual judge weakness ($\eta_{\max}$) and structural diversity ($K_{\mathrm{eff}}$) across 15 models, six attack types, two benchmarks, and panel sizes $K \in \{3, 5, 7\}$ (up to 6,435 panels). Consistent with adversarial ensemble theory but newly characterized in the LLM judge setting, $K_{\mathrm{eff}}$'s coefficient direction is positive in all 12 conditions (12/12 under OLS), though significance is method-sensitive (0--12/12 across inference methods) and the diversity--capability confound ($r{=}0.70$--$0.81$) limits causal interpretation. The predictors' relative importance shifts with panel size: at $K{=}3$, both contribute; at $K{\geq}5$, $K_{\mathrm{eff}}$ becomes the dominant predictor while $\eta_{\max}$ sharply attenuates. Cinelli--Hazlett sensitivity analysis reveals that $K_{\mathrm{eff}}$'s robustness value does not exceed the known confound in 69\% of conditions (25/36), but fractional logit with clustered standard errors confirms the positive association in most conditions ($K{=}3$: 9/12; $K{=}5$: 11/12; $K{=}7$: 12/12). Aggregation rules influence predictability ($R^2$: threshold 0.83, Bayesian 0.09). The defense strategy should be informed by panel size: small panels benefit from screening for individual robustness; larger panels benefit from monitoring judge independence.
+Multi-judge LLM evaluation panels assume that diversity strengthens robustness against adversarial manipulation. Recent work reports that 7-model committees reduce attack success rates from 50--68\% to 10--19\%, yet no existing analysis separates diversity from individual judge quality, two properties structurally confounded ($r{=}0.70$--$0.81$) because expanding family coverage inevitably introduces weaker judges. We regress panel attack success rate on weakest-link susceptibility ($\eta_{\max}$) and a pairwise-MI diversity index ($K_{\mathrm{eff}}$) across 15 models, six attack types, two benchmarks, and panel sizes $K \in \{3, 5, 7\}$. Two patterns emerge: (1)~diversity and vulnerability covary positively (pooled $\hat{\beta}_{\mathrm{std}}$: $0.286$--$0.353$, CI excludes zero), and (2)~$\eta_{\max}$ is significant at $K{=}3$ (pooled $\hat{\beta}_{\mathrm{std}}{=}0.243$) but non-significant at $K{\geq}5$ ($0.091$, $0.086$; CI crosses zero). Bayesian calibration nearly neutralizes composition effects ($R^2{\leq}0.17$). The diversity--capability confound precludes causal claims; all findings are associational\footnote{Code and data are available at \url{https://anonymous.4open.science/r/cert_manip_resist_eval-588E/}.}.
 \end{abstract}
 
 \input{introduction}
@@ -37,20 +47,13 @@ Multi-judge LLM evaluation panels are assumed to benefit from diversity, yet div
 
 \section*{Limitations}
 
-Our study has several limitations. \textbf{Diversity--capability confound.} The structural coupling between diversity and capability in current LLM ecosystems ($r{=}0.70$--$0.81$; VIF $\approx 2.0$--$2.9$) is a fundamental limitation: observational regression cannot reliably separate their contributions. Capability-matched subsampling reduces but does not eliminate this confound (Pool~A $r{=}0.50$; \S\ref{sec:analysis}). Causal identification requires training-based diversity control.
+\textbf{Diversity--capability confound.} The $r{=}0.70$--$0.81$ correlation between diversity and capability prevents causal separation; capability-matched subsampling reduces but does not eliminate this confound (Pool~A $r{=}0.50$).
+\textbf{Inference sensitivity.} At $K{=}3$, $K_{\mathrm{eff}}$'s significance is method-dependent (OLS 12/12, bootstrap 8/12, fractional logit 9/12); $K_{\mathrm{eff}}$ vs.\ $\kappa$-diversity show opposite $K$-trends.
+\textbf{Scope.} Both benchmarks use multiple-choice formats; each attack uses 1--2 template variants; all API models were accessed via OpenRouter without version hashes.
 
-\textbf{Inference sensitivity.} At $K{=}3$, $K_{\mathrm{eff}}$'s significance is sensitive to inference method (OLS 12/12, bootstrap 4/12, fractional logit 9/12), though coefficient direction is positive in all 12 conditions. Cluster counts fall below the ${\geq}20$ threshold at all panel sizes ($K{=}3$: 13, $K{=}5$: ${\leq}11$, $K{=}7$: ${\leq}9$ position clusters) \citep{cameron2008bootstrap}; however, $K_{\mathrm{eff}}$ remains bootstrap-significant at $K{\geq}5$ (7/12, 8/12), indicating that low cluster counts alone do not explain the attenuation pattern at $K{=}3$.
-
-\textbf{Benchmark and attack scope.} Both benchmarks use multiple-choice formats; open-ended generation tasks (e.g., story writing, code generation) may present different attack surfaces and diversity--vulnerability relationships. The six local models use AWQ INT4 quantization, which may confound the capability tier classification. Each attack type uses 1--2 template variants; template-specific effects could confound attack-type comparisons, and conclusions may not generalize beyond the tested wordings. All API models are accessed through OpenRouter, introducing a dependency on routing and snapshot consistency.
-
-\textbf{Panel size range.} We study only odd $K \in \{3,5,7\}$; the predictor shift threshold $K^*$ ($3 < K^* < 5$) is not precisely identified. The 300-item sample per benchmark provides sufficient power for panel-level regression but may not capture the full distributional tail of judge vulnerabilities.
-
-\section*{Code and Data Availability}
-Code, the evaluation framework, and all panel-level results will be released upon acceptance. All evaluation items are sampled from publicly available benchmarks: MMLU \citep{hendrycks2021mmlu} and ARC-Challenge \citep{clark2018arc}. The nine API-accessed judge models are served through OpenRouter; the six local judges are open-weight models (Qwen 2.5, Llama 3.1, Mistral Large) in AWQ-quantized form. Individual judge scores, panel compositions, and aggregated vulnerability metrics will be included in the release. All experiments use a fixed random seed (42), and all hyperparameters are reported in the methodology section to support reproducibility.
+\bibliography{references}
 
 \input{appendix}
 \input{appendix_attacks}
-
-\bibliography{references}
 
 \end{document}
